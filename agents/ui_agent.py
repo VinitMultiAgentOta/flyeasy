@@ -4,7 +4,7 @@ from pm_agent import pm_task
 from architect_agent import architect_task
 
 llm = LLM(
-    model="groq/llama3-8b-8192",
+    model="groq/llama-3.1-8b-instant",
     temperature=0.2,
     api_key=os.environ["GROQ_API_KEY"]
 )

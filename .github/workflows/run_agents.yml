@@ -15,6 +15,9 @@ on:
           - qa
         default: pm
 
+permissions:
+  contents: write        # ← ADD THIS — allows bot to push to repo
+
 jobs:
   run-agents:
     runs-on: ubuntu-latest
@@ -23,6 +26,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}   # ← ADD THIS
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -46,4 +51,4 @@ jobs:
           git config --global user.email "agents@flyeasy.com"
           git add output/
           git diff --staged --quiet || git commit -m "feat: ${{ github.event.inputs.agent }} agent output"
-          git push
+          git push origin main    # ← explicit branch name

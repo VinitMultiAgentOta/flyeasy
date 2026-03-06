@@ -24,7 +24,7 @@ pm_agent = Agent(
     ),
     llm=llm,
     verbose=True,
-    allow_delegation=True
+    allow_delegation=False
 )
 
 pm_task = Task(

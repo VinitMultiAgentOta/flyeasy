@@ -1,20 +1,27 @@
 name: FlyEasy Agent Crew
 
 on:
-  workflow_dispatch:        # Manual trigger — YOU control when agents run
+  workflow_dispatch:
     inputs:
-      task:
-        description: 'What should the agents build?'
+      agent:
+        description: 'Which agent to run?'
         required: true
-        default: 'Build the flight search results page'
+        type: choice
+        options:
+          - pm
+          - architect
+          - ui
+          - backend
+          - qa
+        default: pm
 
 jobs:
   run-agents:
-    runs-on: ubuntu-latest  # Runs on GitHub cloud — NOT your machine
+    runs-on: ubuntu-latest
     timeout-minutes: 30
 
     steps:
-      - name: Checkout FlyEasy repo
+      - name: Checkout repo
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -22,21 +29,21 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install agent dependencies
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Run FlyEasy Agent Crew
+      - name: Run selected agent
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           E2B_API_KEY: ${{ secrets.E2B_API_KEY }}
-          TASK_INPUT: ${{ github.event.inputs.task }}
+          AGENT_TO_RUN: ${{ github.event.inputs.agent }}
           PYTHONPATH: ${{ github.workspace }}/agents
         run: python agents/main.py
 
-      - name: Commit generated code back to repo
+      - name: Commit agent output to repo
         run: |
           git config --global user.name "FlyEasy Agents"
           git config --global user.email "agents@flyeasy.com"
-          git add src/
-          git diff --staged --quiet || git commit -m "feat: Agent generated code - ${{ github.event.inputs.task }}"
+          git add output/
+          git diff --staged --quiet || git commit -m "feat: ${{ github.event.inputs.agent }} agent output"
           git push

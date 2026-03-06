@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── CSS Design Tokens ─────────────────────────────────── */
+:root {
+  --color-brand-primary:    #004D9F;
+  --color-brand-secondary:  #FF4600;
+  --color-brand-accent:     #00A651;
+  --color-brand-dark:       #001F5B;
+  --color-brand-light:      #E8F0FB;
+  --color-brand-hover:      #003F87;
+  /* CTA */
+  --color-cta-call:         #FF4600;
+  --color-cta-call-hover:   #B33100;
+  --color-cta-call-light:   #FFF2ED;
+
+  /* Surfaces */
+  --color-surface:          #FFFFFF;
+  --color-surface-muted:    #F5F7FA;
+  --color-surface-border:   #DDE3ED;
+  --color-surface-dark:     #EEF2F8;
+
+  /* Text */
+  --color-text-primary:     #1A1A2E;
+  --color-text-secondary:   #4A5568;
+  --color-text-muted:       #8896A5;
+  --color-text-inverse:     #FFFFFF;
+
+  /* Gradients — CheapOAir style deep blue */
+  --bg-hero-gradient:   linear-gradient(135deg, #001F5B 0%, #004D9F 55%, #0063CC 100%);
+  --bg-cta-gradient:    linear-gradient(90deg,  #FF4600 0%, #B33100 100%);
+  --bg-deals-gradient:  linear-gradient(135deg, #004D9F 0%, #0063CC 100%);
+  --bg-orange-gradient: linear-gradient(90deg,  #FF4600 0%, #FF6B35 100%);
+
+  /* Shadows */
+  --shadow-card:       0 2px 12px rgba(0,77,159,0.08);
+  --shadow-card-hover: 0 8px 32px rgba(0,77,159,0.18);
+  --shadow-cta:        0 4px 20px rgba(255,70,0,0.38);
+  --shadow-header:     0 2px 20px rgba(0,31,91,0.12);
+
+  /* Layout */
+  --header-height:         72px;
+  --header-height-compact: 56px;
+  --announcement-height:   40px;
+  --transition-base:       150ms ease-in-out;
+  --transition-smooth:     300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-base: 8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+
+  /* Fonts */
+  --font-sans:    "Inter", system-ui, -apple-system, sans-serif;
+  --font-heading: "Poppins", "Inter", sans-serif;
+}
+
+/* ─── Base Reset ────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-surface text-text-primary font-sans antialiased;
+    font-feature-settings: "liga" 1, "kern" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-text-primary;
+  }
+
+  a { @apply transition-colors; }
+  button { @apply transition-all cursor-pointer; }
+
+  input, select, textarea {
+    @apply outline-none ring-0 transition-all;
+  }
+
+  /* Prevent layout shift from scrollbar */
+  html { scrollbar-gutter: stable; }
+}
+
+/* ─── Component Utilities ───────────────────────────────── */
+@layer components {
+  .container-site {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Phone CTA — reusable across all components */
+  .phone-cta {
+    @apply inline-flex items-center gap-2 font-heading font-bold text-cta-call
+           hover:text-cta-callHover transition-colors cursor-pointer;
+  }
+  .phone-cta-lg  { @apply text-phone-lg; }
+  .phone-cta-md  { @apply text-phone-md; }
+  .phone-cta-hero{ @apply text-phone-hero; }
+
+  /* CTA Button variants */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-brand-secondary hover:bg-orange-600 active:bg-orange-700
+           text-white font-semibold rounded-lg px-6 py-3
+           shadow-cta hover:shadow-lg
+           transition-all duration-200 select-none;
+  }
+  .btn-call {
+    @apply inline-flex items-center justify-center gap-2
+           bg-cta-call hover:bg-cta-callHover active:bg-red-700
+           text-white font-bold rounded-lg px-6 py-3
+           shadow-lg hover:shadow-xl
+           transition-all duration-200 select-none;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2
+           border-2 border-brand-primary text-brand-primary
+           hover:bg-brand-primary hover:text-white
+           font-semibold rounded-lg px-6 py-3
+           transition-all duration-200 select-none;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2
+           text-text-secondary hover:text-brand-primary hover:bg-brand-light
+           font-medium rounded-lg px-4 py-2
+           transition-all duration-200 select-none;
+  }
+
+  /* Search widget form fields */
+  .search-input {
+    @apply w-full bg-white border border-surface-border rounded-lg
+           px-4 py-3 text-text-primary placeholder-text-muted
+           focus:border-brand-primary focus:ring-2 focus:ring-brand-primary/20
+           transition-all duration-200;
+  }
+
+  /* Section headings */
+  .section-title {
+    @apply text-2xl sm:text-3xl font-heading font-bold text-text-primary;
+  }
+  .section-subtitle {
+    @apply text-text-secondary text-base sm:text-lg mt-2;
+  }
+
+  /* Card base */
+  .card {
+    @apply bg-surface rounded-xl shadow-card hover:shadow-card-hover
+           border border-surface-border transition-all duration-300;
+  }
+}
+
+/* ─── Scrollbar Styling ─────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-surface-muted; }
+::-webkit-scrollbar-thumb { @apply bg-brand-primary/40 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-brand-primary/70; }
+
+/* ─── Focus Ring (accessibility) ───────────────────────── */
+:focus-visible {
+  outline: 2px solid #0057B8;
+  outline-offset: 2px;
+}
+
+/* ─── Marquee animation ─────────────────────────────────── */
+.marquee-container { overflow: hidden; }
+.marquee-track {
+  display: flex;
+  animation: marquee 30s linear infinite;
+}
+.marquee-track:hover { animation-play-state: paused; }
+/* ── Marquee (Partners Strip) ── */
+.marquee-container {
+  overflow: hidden;
+  width: 100%;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 35s linear infinite;
+}
+
+.marquee-container:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── Pulse slow (floating button ring) ── */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 2.5s ease-in-out infinite;
+}

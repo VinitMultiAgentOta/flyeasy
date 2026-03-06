@@ -1,94 +1,57 @@
-from crewai import Agent, Task
-from langchain_groq import ChatGroq
-from pm_agent import pm_task
 import os
+from crewai import Agent, Task, LLM
+from pm_agent import pm_task
 
-llm = ChatGroq(
-    model="llama-3.3-70b-versatile",
+llm = LLM(
+    model="groq/llama-3.3-70b-versatile",
     temperature=0.1,
     api_key=os.environ["GROQ_API_KEY"]
 )
 
 architect_agent = Agent(
     role="Solutions Architect",
-    goal="""Design complete technical architecture for FlyEasy.
-            Extend existing codebase — do not redesign what exists.
-            Produce exact code for new types, stores, and API contracts.""",
-    backstory="""Enterprise architect with 12+ years on OTA platforms.
-                 Expert in Next.js 14 App Router, TypeScript, Zustand,
-                 Amadeus GDS API, Razorpay, PCI DSS compliance,
-                 SQL Server schema design for booking systems.
-                 Knows FlyEasy existing types and store patterns well.""",
+    goal=(
+        "Design complete technical architecture for FlyEasy. "
+        "Extend existing codebase without redesigning what exists. "
+        "Produce exact code for new types, stores, and API contracts."
+    ),
+    backstory=(
+        "12+ years building OTA platforms. "
+        "Expert in Next.js 14 App Router, TypeScript, Zustand. "
+        "Deep knowledge of Amadeus GDS API, Razorpay, PCI DSS. "
+        "SQL Server schema design expert for booking systems."
+    ),
     llm=llm,
     verbose=True,
     allow_delegation=False
 )
 
 architect_task = Task(
-    description="""
-    Design and produce exact code for FlyEasy architecture extensions.
-    
-    EXISTING PATTERNS TO FOLLOW:
-    - Types use: export interface / export type pattern
-    - Store uses: Zustand create() with devtools middleware
-    - Components use: named exports, 'use client' where needed
-    - Styling: Tailwind CSS + inline style for brand colors
-    - Brand: Blue #004D9F, Orange-Red #FF4600, White background
-    
-    PRODUCE EXACT CODE FOR:
-    
-    1. EXTENDED TYPES (full file content for src/types/index.ts additions):
-    
-    // Flight Results
-    export interface FlightOffer {
-      id: string;
-      airline: string;
-      airlineCode: string;
-      flightNumber: string;
-      origin: string;
-      destination: string;
-      departureTime: string;
-      arrivalTime: string;
-      duration: string;
-      stops: number;
-      stopDetails?: StopDetail[];
-      price: FareBreakdown;
-      cabinClass: CabinClass;
-      seatsLeft: number;
-      refundable: boolean;
-      baggage: BaggageInfo;
-    }
-    // ... complete all missing types
-    
-    2. RESULTS STORE (full file: src/store/resultsStore.ts):
-    - Zustand store for flight search results
-    - State: results[], selectedOffer, filters, sortBy, loading, error
-    - Actions: setResults, selectOffer, updateFilters, setSortBy
-    
-    3. BOOKING STORE (full file: src/store/bookingStore.ts):
-    - Zustand store for booking flow
-    - State: passengers[], selectedSeats, payment, pnr, booking
-    - Actions: addPassenger, updatePassenger, selectSeat, setPayment, setPNR
-    
-    4. SQL SERVER SCHEMA (CREATE TABLE scripts):
-    - Users, Searches, FlightOffers (cache), Bookings, 
-      Passengers, Payments, Tickets tables
-    - All foreign keys, indexes, constraints
-    
-    5. API CONTRACTS (exact Next.js route handler signatures):
-    - POST /api/flights/search → Amadeus integration
-    - GET  /api/flights/[offerId] → fare rules
-    - POST /api/bookings/create → PNR creation
-    - POST /api/payments/initiate → Razorpay order
-    - POST /api/payments/verify → Razorpay verification
-    - GET  /api/tickets/[pnr] → ticket data
-    """,
+    description=(
+        "Design complete architecture extensions for FlyEasy.\n\n"
+        "PRODUCE CODE FOR:\n"
+        "1. New TypeScript interfaces to add to src/types/index.ts: "
+        "FlightOffer, FlightSegment, StopDetail, FareBreakdown, BaggageInfo, "
+        "FareRule, Passenger, PassengerTitle, Booking, BookingStatus, "
+        "Payment, PaymentMethod, PaymentStatus, PNR, ETicket, SeatMap, Seat.\n\n"
+        "2. Full Zustand store src/store/resultsStore.ts: "
+        "State for results array, selectedOffer, filters, sortBy, loading, error. "
+        "Actions: setResults, selectOffer, updateFilters, setSortBy, setLoading.\n\n"
+        "3. Full Zustand store src/store/bookingStore.ts: "
+        "State for passengers array, selectedSeats, payment, pnr, bookingId. "
+        "Actions: addPassenger, updatePassenger, selectSeat, setPayment, setPNR.\n\n"
+        "4. SQL Server CREATE TABLE scripts for: "
+        "Users, Searches, Bookings, Passengers, Payments, Tickets.\n\n"
+        "5. Next.js API route handler signatures with TypeScript types for: "
+        "POST /api/flights/search, GET /api/flights/[offerId], "
+        "POST /api/bookings/create, POST /api/payments/initiate, "
+        "POST /api/payments/verify, GET /api/tickets/[pnr].\n"
+    ),
     agent=architect_agent,
-    expected_output="""Complete architecture code:
-                       - Full extended types/index.ts additions
-                       - resultsStore.ts complete file
-                       - bookingStore.ts complete file  
-                       - SQL Server CREATE TABLE scripts
-                       - API route handler signatures""",
+    expected_output=(
+        "Complete architecture code: "
+        "new TypeScript types, resultsStore.ts, bookingStore.ts, "
+        "SQL Server schema, API route signatures."
+    ),
     context=[pm_task]
 )

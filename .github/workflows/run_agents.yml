@@ -1,0 +1,40 @@
+name: FlyEasy Agent Crew
+
+on:
+  workflow_dispatch:        # Manual trigger — YOU control when agents run
+    inputs:
+      task:
+        description: 'What should the agents build?'
+        required: true
+        default: 'Build the flight search results page'
+
+jobs:
+  run-agents:
+    runs-on: ubuntu-latest  # Runs on GitHub cloud — NOT your machine
+
+    steps:
+      - name: Checkout FlyEasy repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install agent dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run FlyEasy Agent Crew
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          E2B_API_KEY: ${{ secrets.E2B_API_KEY }}
+          TASK_INPUT: ${{ github.event.inputs.task }}
+        run: python agents/main.py
+
+      - name: Commit generated code back to repo
+        run: |
+          git config --global user.name "FlyEasy Agents"
+          git config --global user.email "agents@flyeasy.com"
+          git add src/
+          git diff --staged --quiet || git commit -m "feat: Agent generated code - ${{ github.event.inputs.task }}"
+          git push

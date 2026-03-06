@@ -1,0 +1,232 @@
+import os
+from crewai import Agent, Task
+from langchain_groq import ChatGroq
+from pm_agent import pm_task
+from architect_agent import architect_task
+from ui_agent import ui_task
+from backend_agent import backend_task
+
+llm = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    temperature=0.1,
+    api_key=os.environ["GROQ_API_KEY"]
+)
+
+qa_agent = Agent(
+    role="QA Lead",
+    goal=(
+        "Create and deliver a complete test strategy for FlyEasy. "
+        "Cover every screen, API, edge case, and security vulnerability. "
+        "Produce actionable test cases, Postman collection, "
+        "and security checklist."
+    ),
+    backstory=(
+        "10 years testing OTA and travel booking platforms. "
+        "Expert in GDS edge cases: fare expiry after 15 mins, "
+        "seat sold between search and booking, "
+        "price change during session, double-booking prevention. "
+        "Skilled in functional, regression, performance, "
+        "and security testing for payment systems. "
+        "Uses Playwright for E2E, Jest for unit tests, "
+        "Postman for API testing. "
+        "Knows OWASP Top 10, PCI DSS testing requirements, "
+        "and common OTA fraud patterns."
+    ),
+    llm=llm,
+    verbose=True,
+    allow_delegation=False
+)
+
+qa_task = Task(
+    description=(
+        "Create complete QA package for FlyEasy flight portal.\n\n"
+
+        "DELIVER ALL OF THE FOLLOWING:\n\n"
+
+        "1. FUNCTIONAL TEST CASES (50 total):\n\n"
+
+        "SEARCH FLOW (10 test cases):\n"
+        "TC01: Valid one-way search DEL to DXB returns results\n"
+        "TC02: Valid round-trip search with return date works\n"
+        "TC03: Multi-city search with 3 legs works\n"
+        "TC04: Search with 0 results shows empty state\n"
+        "TC05: Search with past date shows validation error\n"
+        "TC06: Search without origin shows error message\n"
+        "TC07: Search without destination shows error message\n"
+        "TC08: Swap origin and destination button works correctly\n"
+        "TC09: Maximum 9 passengers enforced on selector\n"
+        "TC10: Infant without adult shows validation error\n\n"
+
+        "RESULTS PAGE (8 test cases):\n"
+        "TC11: Results load within 5 seconds of search\n"
+        "TC12: Sort by cheapest reorders results correctly\n"
+        "TC13: Sort by fastest reorders results correctly\n"
+        "TC14: Filter by 0 stops shows only direct flights\n"
+        "TC15: Filter by airline name shows only that airline\n"
+        "TC16: Price range slider filter works correctly\n"
+        "TC17: Loading skeleton shows during API call\n"
+        "TC18: Clicking a flight navigates to correct detail page\n\n"
+
+        "BOOKING FLOW (12 test cases):\n"
+        "TC19: Passenger form validates all required fields\n"
+        "TC20: Invalid passport number format is rejected\n"
+        "TC21: Invalid email format is rejected\n"
+        "TC22: Indian phone number validation with +91 prefix\n"
+        "TC23: Seat selection saves correctly per passenger\n"
+        "TC24: Skip seat selection proceeds to payment page\n"
+        "TC25: 15 minute countdown timer visible on payment page\n"
+        "TC26: Timer expiry shows fare expired error message\n"
+        "TC27: Successful card payment completes booking\n"
+        "TC28: Successful UPI payment completes booking\n"
+        "TC29: Failed payment shows error with retry option\n"
+        "TC30: Confirmation page shows correct PNR number\n\n"
+
+        "TICKET FLOW (5 test cases):\n"
+        "TC31: E-ticket page loads with correct PNR data\n"
+        "TC32: All passenger names shown correctly on ticket\n"
+        "TC33: Print button triggers browser print dialog\n"
+        "TC34: Confirmation email received within 2 minutes\n"
+        "TC35: WhatsApp share link contains PNR and route\n\n"
+
+        "EDGE CASES (15 test cases):\n"
+        "TC36: Fare expired between search and booking shows message\n"
+        "TC37: Seat sold between search and booking handled gracefully\n"
+        "TC38: Price changed between search and payment alerts user\n"
+        "TC39: Amadeus API timeout shows friendly error message\n"
+        "TC40: Payment success but PNR creation failed shows support message\n"
+        "TC41: Duplicate booking attempt is blocked\n"
+        "TC42: Browser back button during payment preserves data\n"
+        "TC43: Page refresh during passenger form preserves data\n"
+        "TC44: Slow 3G network shows loading states throughout\n"
+        "TC45: Network disconnect during payment shows recovery flow\n"
+        "TC46: Invalid PNR in URL returns 404 page\n"
+        "TC47: Accessing payment page without passengers redirects back\n"
+        "TC48: Accessing confirm page without payment redirects back\n"
+        "TC49: Multi-city with same origin and destination blocked\n"
+        "TC50: Booking for infant only without adult is blocked\n\n"
+
+        "2. POSTMAN COLLECTION JSON:\n"
+        "Produce a complete Postman collection file covering:\n"
+        "POST /api/flights/search\n"
+        "  - Valid payload: expect 200 with results array\n"
+        "  - Missing origin: expect 400 with error message\n"
+        "  - Missing destination: expect 400 with error message\n"
+        "  - Past date: expect 400 with validation error\n"
+        "GET /api/flights/[offerId]\n"
+        "  - Valid offerId: expect 200 with offer details\n"
+        "  - Expired offerId: expect 410 Gone\n"
+        "  - Invalid offerId format: expect 400\n"
+        "POST /api/bookings/create\n"
+        "  - Valid payload: expect 200 with PNR\n"
+        "  - Missing passengers: expect 400\n"
+        "  - No auth token: expect 401\n"
+        "  - Expired auth token: expect 401\n"
+        "POST /api/payments/initiate\n"
+        "  - Valid payload: expect 200 with Razorpay orderId\n"
+        "  - Invalid bookingId: expect 404\n"
+        "  - No auth token: expect 401\n"
+        "POST /api/payments/verify\n"
+        "  - Valid Razorpay signature: expect 200 success\n"
+        "  - Invalid signature: expect 400 signature mismatch\n"
+        "  - Already verified payment: expect 409 Conflict\n"
+        "GET /api/tickets/[pnr]\n"
+        "  - Valid PNR: expect 200 with ticket data\n"
+        "  - Invalid PNR: expect 404\n"
+        "  - Another users PNR: expect 403 Forbidden\n"
+        "POST /api/notifications/ticket\n"
+        "  - Valid payload: expect 200 with messageId\n"
+        "  - Invalid email: expect 400\n"
+        "  - Brevo API down: expect 503 with fallback message\n\n"
+
+        "3. SECURITY TEST CHECKLIST:\n"
+        "Produce pass or fail checklist for each item:\n"
+        "- SQL injection attempt on search origin field\n"
+        "- SQL injection attempt on passenger name fields\n"
+        "- XSS script tag in passenger first name field\n"
+        "- XSS script tag in passenger last name field\n"
+        "- IDOR: user A attempts to access user B PNR via URL\n"
+        "- IDOR: user A attempts to access user B payment record\n"
+        "- Razorpay signature bypass with tampered payload\n"
+        "- JWT token expiry enforced on all booking routes\n"
+        "- Expired JWT token rejected on payment routes\n"
+        "- Rate limiting enforced at 100 searches per minute\n"
+        "- Passport number not visible in any API response log\n"
+        "- Card data never stored or logged anywhere\n"
+        "- HTTPS enforced and HTTP redirects to HTTPS\n"
+        "- CORS configured to allow only flyeasy.com origin\n"
+        "- Content Security Policy headers present on all pages\n\n"
+
+        "4. PLAYWRIGHT E2E TEST SCRIPT:\n"
+        "Produce complete test file: tests/e2e/booking-flow.spec.ts\n\n"
+        "Test: Complete happy path booking flow\n"
+        "Step 1: Navigate to flyeasy.com home page\n"
+        "Step 2: Select one-way trip type\n"
+        "Step 3: Type DEL in origin airport input\n"
+        "Step 4: Select Indira Gandhi International from dropdown\n"
+        "Step 5: Type DXB in destination airport input\n"
+        "Step 6: Select Dubai International from dropdown\n"
+        "Step 7: Select departure date 30 days from today\n"
+        "Step 8: Set 1 adult passenger\n"
+        "Step 9: Select economy cabin class\n"
+        "Step 10: Click Search Flights button\n"
+        "Step 11: Wait for results page to load\n"
+        "Step 12: Verify at least 1 flight result card visible\n"
+        "Step 13: Click first flight result\n"
+        "Step 14: Verify flight details page loads\n"
+        "Step 15: Click Select This Flight button\n"
+        "Step 16: Fill passenger first name\n"
+        "Step 17: Fill passenger last name\n"
+        "Step 18: Fill date of birth\n"
+        "Step 19: Fill passport number\n"
+        "Step 20: Fill contact email\n"
+        "Step 21: Fill contact phone with +91\n"
+        "Step 22: Click Continue to Seat Selection\n"
+        "Step 23: Click Skip Seat Selection\n"
+        "Step 24: Verify payment page loads with countdown timer\n"
+        "Step 25: Verify order summary shows correct amount\n"
+        "Step 26: Verify Razorpay payment widget loads\n"
+        "Step 27: Complete test payment using Razorpay test card\n"
+        "Step 28: Verify confirmation page shows PNR number\n"
+        "Step 29: Verify PNR is 6 characters alphanumeric\n"
+        "Step 30: Click Download E-Ticket\n"
+        "Step 31: Verify ticket page loads with correct PNR\n"
+        "Step 32: Verify all passenger details on ticket\n\n"
+
+        "5. BUG REPORT TEMPLATE:\n"
+        "Produce standard bug report template as markdown:\n"
+        "Fields: Bug ID, Title, Severity (Critical/High/Medium/Low),\n"
+        "Module (Search/Results/Booking/Payment/Ticket),\n"
+        "Environment (Dev/Staging/Prod),\n"
+        "Steps to Reproduce (numbered list),\n"
+        "Expected Result,\n"
+        "Actual Result,\n"
+        "Screenshot or Video link,\n"
+        "Browser and OS,\n"
+        "Reported By,\n"
+        "Assigned To,\n"
+        "Status (Open/In Progress/Fixed/Closed),\n"
+        "Fix Verified By\n\n"
+
+        "6. PERFORMANCE BENCHMARKS:\n"
+        "Define acceptable performance thresholds:\n"
+        "- Home page load: under 2 seconds on 4G\n"
+        "- Flight search API response: under 5 seconds\n"
+        "- Results page render: under 1 second after API response\n"
+        "- Payment page load: under 1.5 seconds\n"
+        "- Razorpay widget load: under 3 seconds\n"
+        "- E-ticket page load: under 1 second\n"
+        "- Concurrent users supported: minimum 500 simultaneous searches\n"
+    ),
+    agent=qa_agent,
+    expected_output=(
+        "Complete QA package with all 6 deliverables:\n"
+        "1. 50 functional test cases with pass/fail criteria\n"
+        "2. Postman collection JSON for all 7 API endpoints\n"
+        "3. Security checklist with 15 items\n"
+        "4. Playwright E2E test script (booking-flow.spec.ts)\n"
+        "5. Bug report template in markdown\n"
+        "6. Performance benchmark thresholds\n"
+        "Each test case has: ID, description, steps, expected result."
+    ),
+    context=[pm_task, architect_task, ui_task, backend_task]
+)

@@ -3,7 +3,7 @@ from crewai import Agent, Task, LLM
 from architect_agent import architect_task
 
 llm = LLM(
-    model="groq/llama-3.3-70b-versatile",
+    model="ggroq/llama3-8b-8192",
     temperature=0.1,
     api_key=os.environ["GROQ_API_KEY"]
 )

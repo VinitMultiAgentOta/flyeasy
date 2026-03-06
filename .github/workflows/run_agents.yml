@@ -11,6 +11,7 @@ on:
 jobs:
   run-agents:
     runs-on: ubuntu-latest  # Runs on GitHub cloud — NOT your machine
+    timeout-minutes: 30
 
     steps:
       - name: Checkout FlyEasy repo

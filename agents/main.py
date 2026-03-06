@@ -1,7 +1,6 @@
 import os
 import sys
 
-# Add agents folder to path
 sys.path.insert(0, os.path.dirname(__file__))
 
 from crewai import Crew, Process
@@ -31,7 +30,7 @@ flyeasy_crew = Crew(
     ],
     process=Process.sequential,
     verbose=True,
-    memory=True
+    memory=False        # ← CHANGED: disable memory (needs OpenAI)
 )
 
 result = flyeasy_crew.kickoff()

@@ -1,6 +1,7 @@
 import os
 from crewai import Agent, Task
 from langchain_groq import ChatGroq
+from architect_agent import architect_task
 
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",

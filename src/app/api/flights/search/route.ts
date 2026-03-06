@@ -1,60 +1,127 @@
-// src/app/api/flights/search/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { searchFlights } from '@/lib/amadeus';
-import { FlightSearchParams } from '@/types';
 
+// Accepts BOTH flat format (from UI) and nested format (legacy)
 export async function POST(req: NextRequest) {
   try {
-    const body: FlightSearchParams = await req.json();
+    const body = await req.json();
 
-    // Input validation
-    if (!body.origin || !body.destination || !body.departDate) {
+    // ── Normalise field names ─────────────────────────────────────────
+    // UI sends:  origin, destination, departureDate, returnDate, adults,
+    //            children, infants, travelClass, tripType
+    // Legacy sends: origin.iataCode, destination.iataCode, departDate,
+    //               passengers.adult, cabinClass
+
+    const originCode: string =
+      typeof body.origin === 'string'
+        ? body.origin.trim().toUpperCase()
+        : (body.origin?.iataCode ?? '').trim().toUpperCase();
+
+    const destCode: string =
+      typeof body.destination === 'string'
+        ? body.destination.trim().toUpperCase()
+        : (body.destination?.iataCode ?? '').trim().toUpperCase();
+
+    const departDate: string =
+      body.departureDate ??
+      body.departDate ??
+      body.depart ??
+      '';
+
+    const returnDate: string | undefined =
+      body.returnDate ??
+      body.return ??
+      undefined;
+
+    const adults: number =
+      body.adults ??
+      body.passengers?.adult ??
+      1;
+
+    const children: number =
+      body.children ??
+      body.passengers?.child ??
+      0;
+
+    const infants: number =
+      body.infants ??
+      body.passengers?.infant ??
+      0;
+
+    const cabinRaw: string =
+      body.travelClass ??
+      body.cabinClass ??
+      body.cabin ??
+      'ECONOMY';
+
+    const cabinMap: Record<string, 'ECONOMY' | 'PREMIUM_ECONOMY' | 'BUSINESS' | 'FIRST'> = {
+      economy:         'ECONOMY',
+      ECONOMY:         'ECONOMY',
+      premium_economy: 'PREMIUM_ECONOMY',
+      PREMIUM_ECONOMY: 'PREMIUM_ECONOMY',
+      business:        'BUSINESS',
+      BUSINESS:        'BUSINESS',
+      first:           'FIRST',
+      FIRST:           'FIRST',
+    };
+    const cabinClass = cabinMap[cabinRaw] ?? 'ECONOMY';
+
+    const tripType: string = body.tripType ?? 'one_way';
+
+    // ── Validation ───────────────────────────────────────────────────
+    if (!originCode || !destCode || !departDate) {
       return NextResponse.json(
-        { error: 'origin, destination and departDate are required' },
+        { error: `origin, destination and departureDate are required. Received: origin=${originCode}, destination=${destCode}, departureDate=${departDate}` },
         { status: 400 }
       );
     }
 
-    if (!body.passengers || body.passengers.adult < 1) {
+    if (!adults || Number(adults) < 1) {
       return NextResponse.json(
         { error: 'At least 1 adult passenger required' },
         { status: 400 }
       );
     }
 
-    const cabinMap: Record<string, 'ECONOMY' | 'PREMIUM_ECONOMY' | 'BUSINESS' | 'FIRST'> = {
-      economy: 'ECONOMY',
-      premium_economy: 'PREMIUM_ECONOMY',
-      business: 'BUSINESS',
-      first: 'FIRST',
-    };
-
+    // ── Call Amadeus ─────────────────────────────────────────────────
     const results = await searchFlights({
-      origin: body.origin.iataCode,
-      destination: body.destination.iataCode,
-      departDate: body.departDate,
-      returnDate: body.returnDate ?? undefined,
-      adults: body.passengers.adult,
-      children: body.passengers.child,
-      infants: body.passengers.infant,
-      cabinClass: cabinMap[body.cabinClass] ?? 'ECONOMY',
-      tripType: body.tripType,
+      origin:      originCode,
+      destination: destCode,
+      departDate,
+      returnDate:  tripType === 'round_trip' ? returnDate : undefined,
+      adults:      Number(adults),
+      children:    Number(children),
+      infants:     Number(infants),
+      cabinClass,
+      tripType,
     });
 
-    return NextResponse.json({ data: results }, { status: 200 });
+    return NextResponse.json({ offers: results }, { status: 200 });
+
   } catch (err: any) {
     console.error('[/api/flights/search]', err?.message);
 
-    if (err?.message === 'Amadeus down') {
-      return NextResponse.json({ error: 'Flight search service unavailable' }, { status: 503 });
+    if (err?.message?.includes('Amadeus') || err?.message?.includes('down')) {
+      return NextResponse.json(
+        { error: 'Flight search service unavailable. Please try again.' },
+        { status: 503 }
+      );
     }
     if (err?.message === 'invalid airports') {
-      return NextResponse.json({ error: 'Invalid origin or destination airport code' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Invalid origin or destination airport code' },
+        { status: 400 }
+      );
     }
     if (err?.message === 'no results') {
-      return NextResponse.json({ error: 'No flights found for this route and date' }, { status: 404 });
+      return NextResponse.json(
+        { offers: [], error: 'No flights found for this route and date' },
+        { status: 200 }
+      );
     }
-
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { error: `Internal server error: ${err?.message}` },
+      { status: 500 }
+    );
   }
 }

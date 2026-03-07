@@ -24,6 +24,7 @@ export interface AirportOption {
   name: string;
   city: string;
   country: string;
+    countryCode: string;
 }
 
 // ── Flight Offer Types ──────────────────────────────────────────

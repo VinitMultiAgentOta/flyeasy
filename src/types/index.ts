@@ -163,4 +163,5 @@ export interface CustomerReview {
   comment: string;
   imageUrl: string;
   verified: boolean;
+  city: string;
 }

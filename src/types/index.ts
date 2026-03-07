@@ -158,10 +158,11 @@ export interface FlightDeal {
 export interface CustomerReview {
   id: string;
   name: string;
-  role: string;
+
   rating: number;
   comment: string;
-  imageUrl: string;
+
   verified: boolean;
   city: string;
+  date: string;
 }

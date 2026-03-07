@@ -167,14 +167,15 @@ export interface CustomerReview {
   date: string;
 }
 // Add this to src/types/index.ts (or your types file)
-
 export interface CarSearchParams {
-  pickupLocation: string;
-  dropoffLocation?: string;
-  pickupDate: string;
+  pickupLocation: AirportOption | null;      // Changed from string | null
+  dropoffLocation?: AirportOption | null;    // Changed from string | null
+  sameLocation?: boolean;
+  pickupDate: string | null;
   pickupTime: string;
-  dropoffDate: string;
+  dropoffDate: string | null;
   dropoffTime: string;
   driverAge?: number;
 }
+
 

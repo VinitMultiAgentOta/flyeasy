@@ -1,17 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-// Add this to src/types/index.ts (or your types file)
-
-export interface CarSearchParams {
-  pickupLocation: string;
-  dropoffLocation?: string;
-  pickupDate: string;
-  pickupTime: string;
-  dropoffDate: string;
-  dropoffTime: string;
-  driverAge?: number;
-}
 
 import type {
   FlightSearchParams,

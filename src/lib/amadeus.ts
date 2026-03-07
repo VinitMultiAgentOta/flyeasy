@@ -66,8 +66,8 @@ export async function priceFlightOffer(offerId: string): Promise<{ offer: Flight
     offer: mapAmadeusOffer(raw),
     fareBreakdown: {
       baseFare: parseFloat(raw.price.base),
-      taxes: parseFloat(raw.price.taxes?.reduce((a: number, t: any) => a + parseFloat(t.amount), 0) ?? 0),
-      fees: parseFloat(raw.price.fees?.reduce((a: number, f: any) => a + parseFloat(f.amount), 0) ?? 0),
+      taxes: parseFloat(raw.price.taxes?.reduce((a: number, t: any) => a + parseFloat(t.amount), 0) ?? '0'),
+      fees: parseFloat(raw.price.fees?.reduce((a: number, f: any) => a + parseFloat(f.amount), 0) ?? '0'),
       total: parseFloat(raw.price.total),
     },
     baggage: {

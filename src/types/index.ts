@@ -138,3 +138,28 @@ export interface ETicket {
   seat: string;
   baggageAllowance: string;
 }
+
+// ── Home Page Types ──────────────────────────────────────────────
+export interface FlightDeal {
+  id: string;
+  origin: string;
+  originCity: string;
+  destination: string;
+  destCity: string;
+  price: number;
+  currency: string;
+  airline: string;
+  airlineCode: string;
+  validUntil: string;
+  discount: number;
+  imageUrl: string;
+}
+
+export interface CustomerReview {
+  id: string;
+  name: string;
+  role: string;
+  rating: number;
+  comment: string;
+  imageUrl: string;
+}

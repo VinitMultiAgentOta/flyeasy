@@ -60,7 +60,7 @@ export async function searchFlights(params: AmadeusSearchParams): Promise<Flight
 // Confirm price still valid before booking
 export async function priceFlightOffer(offerId: string): Promise<{ offer: FlightOffer; fareBreakdown: FareBreakdown; baggage: BaggageInfo }> {
   const response = await amadeusClient.shopping.flightOffers.pricing.post(
-    { data: { type: 'flight-offers-pricing', flightOffers: [{ id: offerId }] } }  );
+    { data: { type: 'flight-offers-pricing', flightOffers: [{ id: offerId }] } } as any  ); 
   const raw = response.data.flightOffers[0];
   return {
     offer: mapAmadeusOffer(raw),

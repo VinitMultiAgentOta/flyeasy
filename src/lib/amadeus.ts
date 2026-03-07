@@ -66,8 +66,8 @@ export async function priceFlightOffer(offerId: string): Promise<{ offer: Flight
     offer: mapAmadeusOffer(raw),
     fareBreakdown: {
       baseFare: parseFloat(raw.price.base),
-      taxes: parseFloat(raw.price.taxes?.reduce((a: number, t: any) => a + parseFloat(t.amount), 0) ?? '0'),
-      fees: parseFloat(raw.price.fees?.reduce((a: number, f: any) => a + parseFloat(f.amount), 0) ?? '0'),
+      taxes: raw.price.taxes?.reduce((a: number, t: any) => a + parseFloat(t.amount), 0) ?? 0,
+      fees: raw.price.fees?.reduce((a: number, f: any) => a + parseFloat(f.amount), 0) ?? 0,
       total: parseFloat(raw.price.total),
     },
     baggage: {
@@ -78,22 +78,24 @@ export async function priceFlightOffer(offerId: string): Promise<{ offer: Flight
 }
 
 // Create order and get PNR
+// Change the entire createOrder function to:
 export async function createOrder(params: AmadeusBookingParams): Promise<{ pnr: string; bookingId: string }> {
   const response = await amadeusClient.booking.flightOrders.post(
-        {
+    {
       data: {
         type: 'flight-order',
-        flightOffers: [{ id: params.offerId }],
+        flightOffers: [{ id: params.offerId }] as any,
         travelers: params.passengers,
       },
-    }
+    } as any
   );
   const order = response.data;
   return {
-    pnr: order.associatedRecords?.[0]?.reference ?? order.id,
-    bookingId: order.id,
+    pnr: order.associatedRecords?.[0]?.reference ?? order.id ?? '',
+    bookingId: order.id ?? '',
   };
 }
+
 
 // Map raw Amadeus offer to typed FlightOffer
 function mapAmadeusOffer(raw: any): FlightOffer {

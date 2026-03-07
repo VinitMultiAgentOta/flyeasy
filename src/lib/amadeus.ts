@@ -1,6 +1,6 @@
 // src/lib/amadeus.ts
 // Typed Amadeus SDK wrapper - server-side only
-import Amadeus from 'amadeus';
+import Amadeus from 'amadeus-ts';
 import { FlightOffer, FlightSegment, StopDetail, FareBreakdown, BaggageInfo } from '@/types';
 
 const amadeusClient = new Amadeus({

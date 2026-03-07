@@ -162,4 +162,5 @@ export interface CustomerReview {
   rating: number;
   comment: string;
   imageUrl: string;
+  verified: boolean;
 }

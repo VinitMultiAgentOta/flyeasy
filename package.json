@@ -32,8 +32,8 @@
     "zustand": "^5.0.11,
         "nodemailer": "^6.9.16",
         "razorpay": "^2.9.4",
-        "mssql": "^11.0.1""
-  },
+        "mssql": "^11.0.1"
+  },"
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^19",

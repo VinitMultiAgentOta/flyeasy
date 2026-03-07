@@ -104,7 +104,7 @@ export function AirportInput({
   };
 
   const displayValue = value
-    ? `${value.city} (${value.iata})`
+    ? `${value.city} (${value.iataCode})`
     : query;
 
   return (
@@ -170,7 +170,7 @@ export function AirportInput({
         >
           {results.map((airport, idx) => (
             <button
-              key={airport.iata}
+              key={airport.iataCode}
               role="option"
               aria-selected={idx === activeIndex}
               type="button"
@@ -190,7 +190,7 @@ export function AirportInput({
                   fontFamily: 'var(--font-heading)',
                 }}
               >
-                {airport.iata}
+                {airport.iataCode}
               </span>
 
               {/* Airport details */}

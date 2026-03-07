@@ -45,8 +45,8 @@ export function FlightSearchWidget() {
 
     const params = new URLSearchParams({
       tripType,
-      origin:   origin.iata,
-      dest:     destination.iata,
+      origin:   origin.iataCode,
+      dest:     destination.iataCode,
       depart:   departDate,
       ...(tripType === 'round_trip' && returnDate ? { return: returnDate } : {}),
       adults:   String(passengers.adult),

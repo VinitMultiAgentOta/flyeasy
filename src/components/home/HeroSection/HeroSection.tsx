@@ -1,27 +1,21 @@
 'use client';
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { PhoneCall, Shield, Star, Headphones, BadgeDollarSign } from 'lucide-react';
-import { useSearchStore } from '@/store/searchStore';
 import { FlightSearchWidget } from './FlightSearchWidget';
-//import { CarSearchWidget }    from './CarSearchWidget';
-import { PHONE, TRUST_STATS }  from '@/constants/site';
+import { PHONE, TRUST_STATS } from '@/constants/site';
 import { generateBookingCount } from '@/lib/utils';
-import { cn } from '@/lib/cn';
 
-const TAB_ICONS = { flights: '✈️' } as const;
 const TRUST_ICONS = [
-  <Star        key="star"  size={20} aria-hidden />,
-  <Shield      key="shield" size={20} aria-hidden />,
-  <Headphones  key="head"  size={20} aria-hidden />,
+  <Star key="star" size={20} aria-hidden />,
+  <Shield key="shield" size={20} aria-hidden />,
+  <Headphones key="head" size={20} aria-hidden />,
   <BadgeDollarSign key="badge" size={20} aria-hidden />,
 ];
 
 export function HeroSection() {
-  const { activeTab, setActiveTab } = useSearchStore();
   const [bookingCount, setBookingCount] = useState(0);
-  const [mounted,      setMounted]      = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -30,12 +24,12 @@ export function HeroSection() {
 
   return (
     <section
-      aria-label="Search flights and cars"
+      aria-label="Search flights"
       className="relative overflow-hidden"
       style={{
-        background:  'var(--bg-hero-gradient)',
-        minHeight:   '600px',
-        paddingTop:  '64px',
+        background: 'var(--bg-hero-gradient)',
+        minHeight: '600px',
+        paddingTop: '64px',
         paddingBottom: '80px',
       }}
     >
@@ -49,7 +43,6 @@ export function HeroSection() {
 
       <div className="container-site relative z-10">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
-
           {/* ── Left: Headlines + Trust ────────────────────── */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -90,17 +83,16 @@ export function HeroSection() {
               className="rounded-2xl p-5 mb-8 border max-w-md"
               style={{
                 backgroundColor: 'rgba(255,70,0,0.18)',
-                borderColor:     '#FF4600',
-                border:          '1.5px solid #FF4600',
+                borderColor: '#FF4600',
+                border: '1.5px solid #FF4600',
               }}
-              
             >
               <p className="text-sm font-medium text-red-300 mb-2">
-                🔥 Can&apos;t find the price you want online?
+                🔥 Can't find the price you want online?
               </p>
               <p className="text-white font-semibold mb-3 text-sm leading-relaxed">
-                Our agents hold <span className="text-yellow-300 font-bold">unpublished &amp; negotiated fares</span> that
-                aren&apos;t available on any website.
+                Our agents hold <span className="text-yellow-300 font-bold">unpublished & negotiated fares</span> that
+                aren't available on any website.
               </p>
               <a
                 href={PHONE.href}
@@ -144,43 +136,34 @@ export function HeroSection() {
               className="rounded-2xl shadow-2xl overflow-hidden"
               style={{ backgroundColor: 'var(--color-surface-muted)' }}
             >
-              {/* Widget header — Flights / Cars tabs */}
+              {/* Widget header — Flights tab */}
               <div
                 className="flex border-b"
                 style={{ borderColor: 'var(--color-surface-border)' }}
                 role="tablist"
                 aria-label="Search type"
               >
-                {{(['flights'] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    role="tab"
-                    aria-selected={activeTab === tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={cn(
-                      'flex-1 flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all duration-200 capitalize border-b-2'
-                    )}
-                    style={
-                      activeTab === tab
-                        ? { color: 'var(--color-brand-primary)',   borderBottomColor: 'var(--color-brand-primary)',   backgroundColor: 'white' }
-                        : { color: 'var(--color-text-secondary)', borderBottomColor: 'transparent', backgroundColor: 'transparent' }
-                    }
-                  >
-                    <span className="text-lg" aria-hidden>{TAB_ICONS[tab]}</span>
-                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                  </button>
-                ))}
+                <button
+                  role="tab"
+                  aria-selected="true"
+                  className="flex-1 flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all duration-200 capitalize border-b-2"
+                  style={{
+                    color: 'var(--color-brand-primary)',
+                    borderBottomColor: 'var(--color-brand-primary)',
+                    backgroundColor: 'white'
+                  }}
+                >
+                  <span className="text-lg" aria-hidden>✈️</span>
+                  Flights
+                </button>
               </div>
 
               {/* Widget body */}
               <div className="p-5 sm:p-6 bg-white">
-                {activeTab === 'flights'
-                  ? <FlightSearchWidget />
-                  // : <CarSearchWidget />
-                }
+                <FlightSearchWidget />
               </div>
 
-              // {/* Widget footer */}
+              {/* Widget footer */}
               <div
                 className="px-5 py-3 flex items-center justify-center gap-2 text-xs"
                 style={{ backgroundColor: '#F8FAFC', color: 'var(--color-text-muted)', borderTop: '1px solid var(--color-surface-border)' }}
@@ -210,7 +193,6 @@ export function HeroSection() {
               </a>
             </div>
           </motion.div>
-
         </div>
       </div>
     </section>

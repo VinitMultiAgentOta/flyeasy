@@ -5,13 +5,12 @@ import { motion } from 'framer-motion';
 import { PhoneCall, Shield, Star, Headphones, BadgeDollarSign } from 'lucide-react';
 import { useSearchStore } from '@/store/searchStore';
 import { FlightSearchWidget } from './FlightSearchWidget';
-import { CarSearchWidget }    from './CarSearchWidget';
+//import { CarSearchWidget }    from './CarSearchWidget';
 import { PHONE, TRUST_STATS }  from '@/constants/site';
 import { generateBookingCount } from '@/lib/utils';
 import { cn } from '@/lib/cn';
 
-const TAB_ICONS = { flights: '✈️', cars: '🚗' } as const;
-
+const TAB_ICONS = { flights: '✈️' } as const;
 const TRUST_ICONS = [
   <Star        key="star"  size={20} aria-hidden />,
   <Shield      key="shield" size={20} aria-hidden />,
@@ -152,7 +151,7 @@ export function HeroSection() {
                 role="tablist"
                 aria-label="Search type"
               >
-                {(['flights', 'cars'] as const).map((tab) => (
+                {{(['flights'] as const).map((tab) => (
                   <button
                     key={tab}
                     role="tab"
@@ -177,11 +176,11 @@ export function HeroSection() {
               <div className="p-5 sm:p-6 bg-white">
                 {activeTab === 'flights'
                   ? <FlightSearchWidget />
-                  : <CarSearchWidget />
+                  // : <CarSearchWidget />
                 }
               </div>
 
-              {/* Widget footer */}
+              // {/* Widget footer */}
               <div
                 className="px-5 py-3 flex items-center justify-center gap-2 text-xs"
                 style={{ backgroundColor: '#F8FAFC', color: 'var(--color-text-muted)', borderTop: '1px solid var(--color-surface-border)' }}

@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
     };
     const cabinClass = cabinMap[cabinRaw] ?? 'ECONOMY';
 
-    const tripType: string = body.tripType ?? 'one_way';
+      const tripType: 'round_trip' | 'one_way' | 'multi_city' = (body.tripType ?? 'one_way') as 'round_trip' | 'one_way' | 'multi_city';
 
     // ── Validation ───────────────────────────────────────────────────
     if (!originCode || !destCode || !departDate) {
